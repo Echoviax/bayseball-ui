@@ -1,42 +1,93 @@
-function DiamondIcon({bases = {first: false, second: false, third: false}}) {
-    return (
-        <div className="relative w-12 h-12">
-            <svg viewBox="0 0 100 100" className="w-full h-full">
-                <polygon points="50,10 90,50 50,90 10,50" className="fill-current text-gray-200" />
-                <polygon points="45,5 55,5 55,15 45,15" className="fill-current text-gray-400" transform="rotate(45 50 10)" /> {/* Home */}
-                <polygon points="85,45 95,45 95,55 85,55" className={`fill-current transition-colors ${bases.first ? 'text-yellow-400' : 'text-gray-400'}`} transform="rotate(45 90 50)" /> {/* First */}
-                <polygon points="45,85 55,85 55,95 45,95" className={`fill-current transition-colors ${bases.second ? 'text-yellow-400' : 'text-gray-400'}`} transform="rotate(45 50 90)" /> {/* Second */}
-                <polygon points="5,45 15,45 15,55 5,55" className={`fill-current transition-colors ${bases.third ? 'text-yellow-400' : 'text-gray-400'}`} transform="rotate(45 10 50)" /> {/* Third */}
-            </svg>
-        </div>
-    );
-}
+'use client';
+
+import { useState } from "react";
 
 function TeamDisplay({ team, score }: {team: any; score: number}) {
     return (
-        <div className="flex clex-col items-center text-center">
-            <span className="text-2xl">{team.emoji}</span>
-            <span className="mt-1 text-xs font-bold uppercase tracking-wider truncate w-20">{team.name}</span>
+        <div className="relative flex flex-col items-center text-center bg-gray-800/70 rounded-lg pt-4 pb-2 w-24 overflow-hidden shadow-inner">
+            <div className="absolute top-0 left-0 w-full h-2" style={{ backgroundColor: `#${team.color}` }} />
+            <span className="text-2xl text-shadow-md">{team.emoji}</span>
+            <span className="mt-1 text-[.7rem] font-bold uppercase tracking-wider w-20">{team.name}</span>
             <span className="text-2xl font-bold">{score}</span>
         </div>
     );
 }
 
-function Base({ baseName, runner, position }: {baseName: string; runner: string; position: string;}) {
-    <div className={`absolute group ${position}`}>
-        <div className={`w-3 h-3 bg-gray-400 rounded-sm transition-colors ${runner ? 'bg-yellow-400' : ''}`}>
+function Base({ runner, color, position }: {runner: string; color: string; position: string;}) {
+    return (
+        <div className={`absolute group ${position}`}>
+            <div className='w-8 h-8 bg-gray-400 transition-colors transform rotate-45 shadow-inner' style={{background: runner ? color : 'bg-gray-400', boxShadow: runner ? `0 0 8px ${color}` : 'none'}} />
             {runner && (
-                <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 px-2 py-1 bg-gray-800 text-white text-xs rounded-md opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap">
+                <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 px-2 py-1 bg-gray-800 text-white text-xs rounded-md opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50">
                     {runner}
                     <div className="absolute top-full left-1/2 -translate-x-1/2 w-0 h-0 border-x-4 border-x-transparent border-t-4 border-t-gray-800"></div>
                 </div>
             )}
         </div>
-    </div>
+    );
 }
 
 export default function GameDisplayPill({homeTeam, awayTeam, event}: {homeTeam: any; awayTeam: any; event: any;}) {
+    const [isHovered, setIsHovered] = useState<boolean>(false);
+
+    const data = event.data
+    const battingColor = data.inning_side === 0 ? `#${awayTeam.color}` : `#${homeTeam.color}`
+
     return (
-        null
+        <div 
+            className="w-full max-w-4xl bg-[#364156]/50 backdrop-blur-lg border border-white/10 rounded-2xl shadow-2xl p-4 mx-4 transition-colors duration-300" 
+            onMouseEnter={() => setIsHovered(true)} 
+            onMouseLeave={() => setIsHovered(false)}
+            style={{
+                borderColor: isHovered ? battingColor : 'rgba(255, 255, 255, 0.1)'
+            }}
+        >
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div className="sm:flex-1 flex justify-center sm:justify-start">
+                    <div className="flex items-center gap-2 sm:gap-4">
+                        <TeamDisplay team={awayTeam} score={data.away_score} />
+                        <div className="text-gray-400 text-sm font-semibold">VS</div>
+                        <TeamDisplay team={homeTeam} score={data.home_score} />
+                    </div>
+                </div>
+
+                <div className="flex items-center gap-2 sm:gap-4">
+                    <div className="flex flex-col items-center text-center w-20">
+                        <div className="text-sm font-semibold opacity-80">B-S</div>
+                        <div className="text-2xl font-mono font-bold">{data.balls}-{data.strikes}</div>
+                        <div className="text-xs font-bold mt-1 bg-red-500/50 text-white rounded-full w-12 text-center">{data.outs} OUT</div>
+                    </div>
+
+                    <div className="relative w-20 h-20 flex items-center justify-center">
+                        <Base runner={data.bases.first} color={battingColor} position="top-1/2 -translate-y-1/2 right-0" />
+                        <Base runner={data.bases.second} color={battingColor} position="top-0 left-1/2 -translate-x-1/2" />
+                        <Base runner={data.bases.third} color={battingColor} position="top-1/2 -translate-y-1/2 left-0" />
+                    </div>
+                
+                    <div className="flex flex-col items-center text-center w-20">
+                        <div className="text-xs opacity-80 font-semibold">INNING</div>
+                        <div className="text-2xl font-bold flex items-center">
+                            {data.inning_side === 0 ? 
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M12 4l8 8H4l8-8z"/></svg> :
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M12 20l-8-8h16l-8 8z"/></svg>
+                            }
+                            {data.inning}
+                        </div>
+                    </div>
+                </div>
+
+                <div className="sm:flex-1 flex justify-center w-full">
+                    <div className="text-sm text-left w-full sm:w-48 bg-gray-800/50 p-3 rounded-lg">
+                        <div><span className="font-bold text-gray-400">P:</span> {data.pitcher}</div>
+                        <div><span className="font-bold text-gray-400">B:</span> {data.batter}</div>
+                        <div className="mt-1 pt-1 border-t border-white/10"><span className="font-bold text-gray-400">NB:</span> {data.next_up}</div>
+                    </div>
+                </div>
+            </div>
+
+            <div className="mt-4 pt-3 border-t border-white/10 text-center text-md text-gray-300">
+                {event.messages.join(" ")}
+            </div>
+        </div>
     );
 }

@@ -10,7 +10,6 @@ const ChevronDownIcon = () => (
 
 export default function Navbar() {
     const [openDropdown, setOpenDropdown] = useState<string | null>(null);
-    const [openAccordion, setOpenAccordion] = useState<string | null>(null);
     const navbarRef = useRef<HTMLElement | null>(null);
 
     const links = [
