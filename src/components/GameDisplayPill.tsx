@@ -7,7 +7,7 @@ function TeamDisplay({ team, score }: {team: any; score: number}) {
         <div className="relative flex flex-col items-center text-center bg-gray-800/70 rounded-lg pt-4 pb-2 w-24 overflow-hidden shadow-inner">
             <div className="absolute top-0 left-0 w-full h-2" style={{ backgroundColor: `#${team.color}` }} />
             <span className="text-2xl text-shadow-md">{team.emoji}</span>
-            <span className="mt-1 text-[.7rem] font-bold uppercase tracking-wider w-20">{team.name}</span>
+            <span className="mt-1 text-[.7rem] font-bold uppercase tracking-wider w-20">{team.lite_name}</span>
             <span className="text-2xl font-bold">{score}</span>
         </div>
     );
@@ -16,7 +16,7 @@ function TeamDisplay({ team, score }: {team: any; score: number}) {
 function Base({ runner, color, position }: {runner: string; color: string; position: string;}) {
     return (
         <div className={`absolute group ${position}`}>
-            <div className='w-8 h-8 bg-gray-400 transition-colors transform rotate-45 shadow-inner' style={{background: runner ? color : 'bg-gray-400', boxShadow: runner ? `0 0 8px ${color}` : 'none'}} />
+            <div className='w-8 h-8 bg-gray-400 transition-colors transform rotate-45 shadow-inner' style={{background: runner ? color : '#99A1Af', boxShadow: runner ? `0 0 8px ${color}` : 'none'}} />
             {runner && (
                 <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 px-2 py-1 bg-gray-800 text-white text-xs rounded-md opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50">
                     {runner}

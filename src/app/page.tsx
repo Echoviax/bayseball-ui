@@ -1,63 +1,48 @@
 'use client';
-import GameDisplayPill from "@/components/GameDisplayPill";
-import { act, useEffect, useState } from "react";
+import Game from "@/components/Game";
+import { useEffect, useState } from "react";
 
-type CompressedGame = {
-    home_team: any,
-    game_id: string,
-    away_team: any,
+type GameData = {
+    home_team: any;
+    away_team: any;
+    game_id: string;
+    events: any[];
 };
 
 export default function HomePage() {
-    const [activeGames, setActiveGames] = useState<CompressedGame[]>([]);
-    
-    const homeTeam = {
-        name: "Meteorites",
-        emoji: "☄️",
-        color: '96D4C1'
-    }
-
-    const awayTeam = {
-        name: "Engineers",
-        emoji: "⚙️",
-        color: '6176aa'
-    }
-
-    const event = {
-        messages: ['Ball. 3-2'],
-        data: {
-            inning: 3,
-            inning_side: 1,
-            strikes: 2,
-            balls: 3,
-            batter: "Example Batter",
-            pitcher: "Example Pitcher",
-            next_up: "Example Batter",
-            outs: 2,
-            home_score: 2,
-            away_score: 1,
-            bases: {
-                first: 'John',
-                second: null,
-                third: 'Someone else'
-            }
-        }
-    }
+    const [activeGames, setActiveGames] = useState<GameData[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
-        const fetchGames = async () => {
-            const games = await fetch('http://localhost:8000/api/games');
-            if (games.ok) setActiveGames(await games.json() as CompressedGame[])
-        }
-        fetchGames();
-    }, [])
+        const fetchInitialGames = async () => {
+            try {
+                const response = await fetch('http://localhost:8000/api/games');
+                if (response.ok) {
+                    const games = await response.json();
+                    setActiveGames(games);
+                }
+            } catch (error) {
+                console.error("Could not fetch initial game list:", error);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+        fetchInitialGames();
+    }, []);
+
+    if (isLoading) {
+        return <div className="text-center mt-24 text-gray-400">Fetching live games...</div>;
+    }
 
     return (
-        <div className="mt-24 max-w-4xl flex justify-center mx-auto">
-            {activeGames.map((game: CompressedGame) => (
-                <div key={game.game_id}>{game.away_team.name} @ {game.home_team.name} Game_Id: {game.game_id}</div>
-            ))}
-            <GameDisplayPill homeTeam={homeTeam} awayTeam={awayTeam} event={event} />
+        <div className="mt-24 max-w-4xl flex flex-col items-center justify-center mx-auto gap-8">
+            {activeGames.length > 0 ? (
+                activeGames.map((game) => (
+                    <Game key={game.game_id} initialGameData={game} />
+                ))
+            ) : (
+                <p className="text-gray-400">No active games right now.</p>
+            )}
         </div>
     );
 }
