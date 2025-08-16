@@ -16,9 +16,10 @@ export default function HomePage() {
     useEffect(() => {
         const fetchInitialGames = async () => {
             try {
-                const response = await fetch('http://localhost:8000/api/games');
+                const response = await fetch('/api/games');
                 if (response.ok) {
                     const games = await response.json();
+                    console.log(games)
                     setActiveGames(games);
                 }
             } catch (error) {
