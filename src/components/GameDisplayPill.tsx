@@ -30,7 +30,7 @@ function Base({ runner, color, position }: {runner: string; color: string; posit
 export default function GameDisplayPill({homeTeam, awayTeam, event}: {homeTeam: any; awayTeam: any; event: any;}) {
     const [isHovered, setIsHovered] = useState<boolean>(false);
 
-    const data = event.data
+    const data = event //Old :)
     const battingColor = data.inning_side === 0 ? `#${awayTeam.color}` : `#${homeTeam.color}`
 
     return (
@@ -86,7 +86,7 @@ export default function GameDisplayPill({homeTeam, awayTeam, event}: {homeTeam: 
             </div>
 
             <div className="mt-4 pt-3 border-t border-white/10 text-center text-md text-gray-300">
-                {event.messages.join(" ")}
+                {event.message.join(" ")}
             </div>
         </div>
     );
