@@ -1,5 +1,6 @@
 'use client';
 import Game from "@/components/Game";
+import { API_BASE_URL } from "@/lib/config";
 import { useEffect, useState } from "react";
 
 type GameData = {
@@ -16,7 +17,7 @@ export default function HomePage() {
     useEffect(() => {
         const fetchInitialGames = async () => {
             try {
-                const response = await fetch('/api/games');
+                const response = await fetch(`${API_BASE_URL}/api/games`);
                 if (response.ok) {
                     const games = await response.json();
                     console.log(games)
