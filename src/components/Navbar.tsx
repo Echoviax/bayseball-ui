@@ -28,6 +28,9 @@ export default function Navbar() {
                     name: "About", href: "/about",
                 },
                 {
+                    name: "Discord", href: "https://discord.gg/YtxJUYzRCe"
+                },
+                {
                     name: "Ko-fi", href: "https://ko-fi.com/Echoviax"
                 }
             ]
