@@ -18,7 +18,7 @@ export default function Game({ initialGameData }: { initialGameData: GameData })
     });
 
     const fetchNewEvents = useCallback(async () => {
-        const response = await fetch(`/api/game/${gameData.game_id}?after=${latestTick}`);
+        const response = await fetch(`http://localhost:8000/api/game/${gameData.game_id}?after=${latestTick}`);
         if (!response.ok) {
             throw new Error(`Failed to fetch events for game ${gameData.game_id}`);
         }
