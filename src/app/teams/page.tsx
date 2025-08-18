@@ -1,9 +1,9 @@
 import TeamHeader from "@/components/TeamHeader";
-import { INTERNAL_API_BASE_URL } from "@/lib/config";
+import { API_URL } from "@/lib/config";
 import { Team } from "@/types/Team";
 
 export default async function TeamsPage() {
-    const teams = await fetch(`${INTERNAL_API_BASE_URL}/api/teams`);
+    const teams = await fetch(`${API_URL}/api/teams`);
     if (!teams.ok) return (<div>Failed to fetch teams! (Is the server running?)</div>)
 
     const team_data: Team[] = await teams.json() as Team[]

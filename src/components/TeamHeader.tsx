@@ -1,4 +1,5 @@
 import { getContrastTextColor } from '@/helpers/colors';
+import { Team } from '@/types/Team';
 import React from 'react';
 
 const darkenColor = (hex: string, percent: number) => {
@@ -13,15 +14,6 @@ const darkenColor = (hex: string, percent: number) => {
     if (g > 255) g = 255;
     else if (g < 0) g = 0;
     return (g | (b << 8) | (r << 16)).toString(16).padStart(6, '0');
-};
-
-type Team = {
-    id: string;
-    name: string;
-    location: string;
-    emoji: string;
-    color: string;
-    motto: string;
 };
 
 export default function TeamHeader({ team }: { team: Team }) {

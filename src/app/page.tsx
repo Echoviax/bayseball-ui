@@ -1,14 +1,8 @@
 'use client';
 import Game from "@/components/Game";
-import { PUBLIC_API_BASE_URL } from "@/lib/config";
+import { LOCAL_OVERRIDE } from "@/lib/config";
+import { GameData } from "@/types/GameData";
 import { useEffect, useState } from "react";
-
-type GameData = {
-    home_team: any;
-    away_team: any;
-    game_id: string;
-    events: any[];
-};
 
 export default function HomePage() {
     const [activeGames, setActiveGames] = useState<GameData[]>([]);
@@ -17,7 +11,7 @@ export default function HomePage() {
     useEffect(() => {
         const fetchInitialGames = async () => {
             try {
-                const response = await fetch(`${PUBLIC_API_BASE_URL}/api/games`);
+                const response = await fetch(`${LOCAL_OVERRIDE}/api/games`);
                 if (response.ok) {
                     const games = await response.json();
                     console.log(games)
@@ -37,7 +31,7 @@ export default function HomePage() {
     }
 
     return (
-        <div className="mt-24 max-w-4xl flex flex-col items-center justify-center mx-auto gap-8">
+        <div className="mt-24 max-w-4xl flex flex-col justify-center mx-auto gap-8">
             {activeGames.length > 0 ? (
                 activeGames.map((game) => (
                     <Game key={game.game_id} initialGameData={game} />

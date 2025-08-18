@@ -2,14 +2,8 @@
 import { usePolling } from "@/hooks/poll";
 import { useState, useCallback } from "react";
 import GameDisplayPill from "./GameDisplayPill";
-import { PUBLIC_API_BASE_URL } from "@/lib/config";
-
-type GameData = {
-    home_team: any;
-    away_team: any;
-    game_id: string;
-    events: any[];
-};
+import { API_URL } from "@/lib/config";
+import { GameData } from "@/types/GameData";
 
 export default function Game({ initialGameData }: { initialGameData: GameData }) {
     const [gameData, setGameData] = useState<GameData>(initialGameData);
@@ -19,7 +13,7 @@ export default function Game({ initialGameData }: { initialGameData: GameData })
     });
 
     const fetchNewEvents = useCallback(async () => {
-        const response = await fetch(`${PUBLIC_API_BASE_URL}/api/game/${gameData.game_id}?after=${latestTick}`);
+        const response = await fetch(`${API_URL}/api/game/${gameData.game_id}?after=${latestTick}`);
         if (!response.ok) {
             throw new Error(`Failed to fetch events for game ${gameData.game_id}`);
         }
@@ -53,6 +47,7 @@ export default function Game({ initialGameData }: { initialGameData: GameData })
         <GameDisplayPill
             homeTeam={gameData.home_team}
             awayTeam={gameData.away_team}
+            gameId={gameData.game_id}
             event={latestEvent}
         />
     );
