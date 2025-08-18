@@ -4,7 +4,8 @@ import { usePolling } from '@/hooks/poll';
 import { LOCAL_OVERRIDE } from '@/lib/config';
 import { GameEvent } from '@/types/GameEvent';
 import { Team } from '@/types/Team';
-import React, { useEffect, useState, useCallback, useRef } from 'react';
+import React, { useEffect, useState, useCallback, useMemo } from 'react';
+import EventBlock from './EventBlock';
 
 type GameHistory = {
     home_team: Team;
@@ -12,20 +13,81 @@ type GameHistory = {
     events: GameEvent[];
 };
 
-const EventBlock = ({ event }: { event: GameEvent }) => (
-    <div className="w-full bg-[#364156]/50 backdrop-blur-lg border border-white/10 rounded-xl shadow-lg p-4 animate-fade-in">
-        <div className="flex items-center mb-2">
-            <span className="font-mono text-xs bg-gray-700/50 text-gray-300 rounded-full px-2 py-0.5">
-                TICK {event.tick}
-            </span>
-        </div>
-        <div className="text-[#DCDCDC] space-y-1">
-            {event.message.map((msg: string, index: number) => (
-                <p key={index}>{msg}</p>
-            ))}
-        </div>
-    </div>
-);
+type EventBlockGroup = {
+    title: string;
+    emoji: string;
+    inning?: number;
+    inning_side?: number;
+    messages: string[];
+    color: string;
+};
+
+function groupEventLog(eventLog: GameEvent[], awayTeam: Team, homeTeam: Team): EventBlockGroup[] {
+    if (!eventLog || eventLog.length === 0) {
+        return [];
+    }
+
+    const blocks: EventBlockGroup[] = [];
+    let currentBlock: EventBlockGroup | null = null;
+
+    for (const event of eventLog) {
+        const joinedMessage = event.message.join(" ");
+        const isNewBatterEvent = joinedMessage.includes("Now Batting:");
+        const isEndOfInningEvent = joinedMessage.includes("End of the") || joinedMessage.includes("Middle of the");
+
+        const isBreakEvent = isNewBatterEvent || isEndOfInningEvent;
+
+        if (isBreakEvent) {
+            if (currentBlock) {
+                blocks.push(currentBlock);
+            }
+
+            if (isNewBatterEvent) {
+                const match = joinedMessage.match(/Now Batting: (.*)/);
+                const batterName = match ? match[1].replace(/\.$/, '') : "At Bat";
+                const battingTeam = event.inning_side === 0 ? awayTeam : homeTeam;
+                
+                currentBlock = {
+                    title: batterName,
+                    emoji: battingTeam.emoji,
+                    inning: event.inning,
+                    inning_side: event.inning_side,
+                    messages: [...event.message],
+                    color: battingTeam.color,
+                };
+            } else { // Default to end of inning
+                currentBlock = {
+                    title: "Game Info",
+                    emoji: 'ℹ️',
+                    messages: [...event.message],
+                    color: '888888',
+                };
+            }
+        } else if (currentBlock) {
+            currentBlock.messages.push(...event.message);
+        } else {
+            const lastBlock = blocks[blocks.length - 1];
+            if (lastBlock?.title === "Game Start") {
+                lastBlock.messages.push(...event.message);
+            } else {
+                blocks.push({
+                    title: "Game Start",
+                    emoji: '⚾',
+                    messages: [...event.message],
+                    color: '888888',
+                });
+            }
+        }
+    }
+
+    // Add the very last block to the list.
+    if (currentBlock) {
+        blocks.push(currentBlock);
+    }
+
+    return blocks.reverse();
+}
+
 
 export default function GamePage({ gameId }: { gameId: string; }) {
     const [gameHistory, setGameHistory] = useState<GameHistory | null>(null);
@@ -76,6 +138,11 @@ export default function GamePage({ gameId }: { gameId: string; }) {
         interval: 6000,
         enabled: !isLoading && !error,
     });
+    
+    const groupedEvents = useMemo(() => {
+        if (!gameHistory) return [];
+        return groupEventLog(gameHistory.events, gameHistory.away_team, gameHistory.home_team);
+    }, [gameHistory]);
 
     if (isLoading) return <div className="min-h-screen flex items-center justify-center text-gray-400"><p>Loading game history...</p></div>;
     if (error) return <div className="min-h-screen flex items-center justify-center text-red-400"><p>Error: {error}</p></div>;
@@ -93,10 +160,17 @@ export default function GamePage({ gameId }: { gameId: string; }) {
                     killLinks={true}
                 />
             )}
-
             <div className="mt-12 w-full max-w-4xl flex flex-col items-center justify-center space-y-4">
-                {gameHistory.events.toReversed().map((event) => (
-                    <EventBlock key={event.tick} event={event} />
+                {groupedEvents.map((group, index) => (
+                    <EventBlock 
+                        color={group.color}
+                        key={index} 
+                        emoji={group.emoji}
+                        messages={group.messages}
+                        title={group.title}
+                        inning={group.inning}
+                        inning_side={group.inning_side}
+                    />
                 ))}
             </div>
         </div>
