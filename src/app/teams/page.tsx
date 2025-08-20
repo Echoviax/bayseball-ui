@@ -1,18 +1,16 @@
-import TeamHeader from "@/components/TeamHeader";
+import TeamListClient from "@/components/TeamListClient";
 import { API_URL } from "@/lib/config";
 import { Team } from "@/types/Team";
 
 export default async function TeamsPage() {
-    const teams = await fetch(`${API_URL}/api/teams`);
-    if (!teams.ok) return (<div>Failed to fetch teams! (Is the server running?)</div>)
+    const res = await fetch(`${API_URL}/api/teams`);
+    if (!res.ok) return (<div>Failed to fetch teams! (Is the server running?)</div>)
 
-    const team_data: Team[] = await teams.json() as Team[]
+    const teams: Team[] = await res.json();
 
     return (
-        <div className="flex flex-col items-center-safe min-h-screen max-w-screen px-2 md:px-4 pt-24">
-            {team_data.map((team: Team) => (
-                <TeamHeader key={team.id} team={team}/>
-            ))}
+        <div className="flex flex-col items-center min-h-screen max-w-screen px-2 md:px-4 pt-24">
+            <TeamListClient teams={teams} />
         </div>
     );
 }

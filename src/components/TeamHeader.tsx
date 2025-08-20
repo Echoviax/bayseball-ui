@@ -16,14 +16,14 @@ const darkenColor = (hex: string, percent: number) => {
     return (g | (b << 8) | (r << 16)).toString(16).padStart(6, '0');
 };
 
-export default function TeamHeader({ team }: { team: Team }) {
+export default function TeamHeader({ team, onClick }: { team: Team; onClick: () => void; }) {
     const darkerColor = darkenColor(team.color, -40);
     const textColor = getContrastTextColor(team.color);
     const emojiBackground = `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Ctext y='32' font-size='32'%3E${team.emoji}%3C/text%3E%3C/svg%3E")`;
     const textShadow = textColor === 'black' ? '1px 1px 8px rgba(255,255,255,0.6)' : '1px 1px 8px rgba(0,0,0,0.6)';
 
     return (
-        <div  className="max-w-2xl relative w-full h-24 px-6 py-4 rounded-2xl shadow-xl overflow-hidden mb-4 flex items-center select-none" 
+        <div onClick={onClick} className="max-w-2xl relative w-full h-24 px-6 py-4 rounded-2xl shadow-xl overflow-hidden mb-4 flex items-center select-none cursor-pointer hover:scale-105 transition-transform duration-300" 
             style={{ color: textColor, background: `linear-gradient(135deg, #${team.color}, #${darkerColor})`}}
         >
             <div className="absolute inset-0 opacity-[0.07] bg-repeat" style={{ backgroundImage: emojiBackground, backgroundSize: '60px' }}/>
