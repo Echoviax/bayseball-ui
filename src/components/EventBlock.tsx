@@ -21,8 +21,15 @@ type EventBlockProps = {
 }
 
 export default function EventBlock({ title, emoji, inning, inning_side, messages, color }: EventBlockProps) {
+    let score: boolean = false;
     const titleTextColor = getContrastTextColor(color);
     const titleBackgroundColor = `rgba(${hexToRgb(color)?.r}, ${hexToRgb(color)?.g}, ${hexToRgb(color)?.b}, 0.8)`;
+
+    for (const message in messages)
+        if (messages[message].includes("score")) {
+            score = true;
+            messages[message] = `<strong>${messages[message]}</strong>`
+        }
 
     return (
         <div className="relative mt-6 w-full">
@@ -39,7 +46,7 @@ export default function EventBlock({ title, emoji, inning, inning_side, messages
                     {inning_side === 0 ? '▲' : '▼'} {inning}
                 </div>
             }
-            <div className="bg-[#364156]/50 backdrop-blur-lg border rounded-2xl shadow-2xl p-4 transition-colors rounded-md pt-6 p-3 mt-4" style={{ borderColor: `#${color}` }}>        
+            <div className={`bg-[#364156]/50 backdrop-blur-lg border shadow-2xl p-4 transition-colors rounded-md pt-6 mt-4 ${score ? 'shadow-inner' : ''}`} style={{ borderColor: `#${color}`, boxShadow: score ? `0 0 48px #${color}` : 'none' }}>        
                 <div className="text-sm whitespace-pre-line space-y-1">
                     {messages.toReversed().map((message, i) => (
                         <div key={i} className="flex-1 text-left leading-[1.3] [&>*]:inline [&>*]:whitespace-normal" dangerouslySetInnerHTML={{__html: message}} />

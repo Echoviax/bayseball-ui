@@ -31,7 +31,8 @@ function groupEventLog(eventLog: GameEvent[], awayTeam: Team, homeTeam: Team): E
     let currentBlock: EventBlockGroup | null = null;
 
     for (const event of eventLog) {
-        const joinedMessage = event.message.join(" ");
+        let joinedMessage = event.message.join(" ");
+        if (joinedMessage.includes("score")) joinedMessage += ` Score is now ${event.away_score}-${event.home_score}.`;
         const isNewBatterEvent = joinedMessage.includes("Now Batting:");
         const isEndOfInningEvent = joinedMessage.includes("End of the") || joinedMessage.includes("Middle of the");
 
@@ -60,21 +61,21 @@ function groupEventLog(eventLog: GameEvent[], awayTeam: Team, homeTeam: Team): E
                     title: "Game Info",
                     emoji: 'ℹ️',
                     messages: [...event.message],
-                    color: '888888',
+                    color: '222222',
                 };
             }
         } else if (currentBlock) {
-            currentBlock.messages.push(...event.message);
+            currentBlock.messages.push(...[joinedMessage]);
         } else {
             const lastBlock = blocks[blocks.length - 1];
             if (lastBlock?.title === "Game Start") {
-                lastBlock.messages.push(...event.message);
+                lastBlock.messages.push(...[joinedMessage]);
             } else {
                 blocks.push({
                     title: "Game Start",
                     emoji: '⚾',
                     messages: [...event.message],
-                    color: '888888',
+                    color: '222222',
                 });
             }
         }
