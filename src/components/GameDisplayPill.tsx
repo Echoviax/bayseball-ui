@@ -72,12 +72,20 @@ export default function GameDisplayPill({ homeTeam, awayTeam, event, gameId=null
                     </div>
                 
                     <div className="flex flex-col items-center text-center w-20">
-                        <div className="text-xs opacity-80 font-semibold">INNING</div>
+                        <div className="h-[26px] flex items-end justify-center">
+                            {event.event !== 'game_end' ? (
+                                <div className="text-xs opacity-80 font-semibold">INNING</div>
+                            ) : (
+                                <span className="px-2 py-1 bg-red-500/50 text-white text-xs font-bold rounded-full leading-none">
+                                    FINAL
+                                </span>
+                            )}
+                        </div>
+
                         <div className="text-2xl font-bold flex items-center">
-                            {event.inning_side === 0 ? 
-                                <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M12 4l8 8H4l8-8z"/></svg> :
-                                <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M12 20l-8-8h16l-8 8z"/></svg>
-                            }
+                            <span className="text-base mr-1.5">
+                                {event.inning_side === 0 ? '▲' : '▼'}
+                            </span>
                             {event.inning}
                         </div>
                     </div>
